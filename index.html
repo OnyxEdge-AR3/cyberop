@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CyberOP</title>
+<meta name="theme-color" content="#121820">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,600;112,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#EDF0F2; --panel:#FFFFFF; --ink:#16202C; --muted:#586473; --line:#D3D9DF; --soft:#F5F7F8;
+  --c1:#C9820F; --c2:#7456C4; --net:#2767B3; --sec:#B32F3D;
+  --ok:#23845A; --okbg:#E3F3EA; --bad:#B8342A; --badbg:#FBE7E4;
+  --cable:var(--c1);
+  --lime:#4E8A00; --orange:#C25E00; --berry:#C2185B; --lemon:#8A7400;
+  --lime-b:#6FB31A; --orange-b:#E8801A; --berry-b:#D33A74; --lemon-b:#D9B200;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121820; --panel:#1A232D; --ink:#E5EAEF; --muted:#9AA7B4; --line:#2C3946; --soft:#202B36;
+    --c1:#E9A23A; --c2:#A08BEA; --net:#5B9BE6; --sec:#E0606C;
+    --ok:#4FC08A; --okbg:#173327; --bad:#EE7A6E; --badbg:#3A1E1C;
+    --lime:#B6FF3B; --orange:#FF9F1C; --berry:#FF4FA3; --lemon:#FFE94D;
+    --lime-b:#9BE23A; --orange-b:#FF9F3F; --berry-b:#FF6FA5; --lemon-b:#F5D431;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121820; --panel:#1A232D; --ink:#E5EAEF; --muted:#9AA7B4; --line:#2C3946; --soft:#202B36;
+  --c1:#E9A23A; --c2:#A08BEA; --net:#5B9BE6; --sec:#E0606C;
+  --ok:#4FC08A; --okbg:#173327; --bad:#EE7A6E; --badbg:#3A1E1C;
+    --lime:#B6FF3B; --orange:#FF9F1C; --berry:#FF4FA3; --lemon:#FFE94D;
+    --lime-b:#9BE23A; --orange-b:#FF9F3F; --berry-b:#FF6FA5; --lemon-b:#F5D431;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--cable);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 84px}
+@media (min-width:1000px){ .wrap.v-home{max-width:1200px} .homegrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start} }
+h1,h2,h3{font-family:var(--display);font-stretch:112%;line-height:1.15;margin:0}
+h1{font-size:1.55rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.2rem;font-weight:800}
+h3{font-size:1rem;font-weight:600}
+p{margin:.4em 0}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+
+/* Exam switcher: patch cables */
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:4px 0 14px}
+.cables{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none}
+.cables::-webkit-scrollbar{display:none}
+.cable{flex:0 0 auto;display:flex;align-items:stretch;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0;overflow:hidden;min-height:52px;text-align:left}
+.cable .boot{width:12px;background:var(--cc)}
+.cable .lbl{padding:7px 12px 7px 10px;display:flex;flex-direction:column;justify-content:center}
+.cable .lbl b{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:.98rem}
+.cable .lbl span{font-size:.78rem;color:var(--muted)}
+.cable[aria-pressed="true"]{border-color:var(--cc);box-shadow:inset 0 -4px 0 var(--cc)}
+.cable[aria-pressed="true"] .boot{width:16px}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.btn{border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:10px 14px;min-height:44px;font-weight:700}
+.btn.primary{background:var(--cable);border-color:var(--cable);color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{min-height:36px;padding:6px 10px;font-size:.9rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;min-height:84px}
+.action b{font-family:var(--display);font-stretch:112%;font-size:1rem}
+.action span{font-size:.85rem;color:var(--muted)}
+.action:disabled{opacity:.5}
+
+/* Readiness meter */
+.meter{position:relative;height:14px;background:var(--soft);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0 4px}
+.meter .fill{position:absolute;inset:0 auto 0 0;background:var(--cable);border-radius:0 8px 8px 0;transition:width .5s}
+.meter .mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.big{font-family:var(--display);font-stretch:112%;font-weight:800;font-size:2.4rem;line-height:1}
+
+/* Domains */
+.dom{border-top:1px solid var(--line);padding:12px 0}
+.dom:first-of-type{border-top:0}
+.dom summary{list-style:none;cursor:pointer}
+.dom summary::-webkit-details-marker{display:none}
+.bar{height:6px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--cable)}
+.obj{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.obj .code{font-weight:700;min-width:2.4em;color:var(--muted)}
+.obj .t{flex:1;font-size:.93rem}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--cable);flex:0 0 auto}
+.dot.m1{background:linear-gradient(90deg,var(--cable) 34%,transparent 34%)}
+.dot.m2{background:linear-gradient(90deg,var(--cable) 67%,transparent 67%)}
+.dot.m3{background:var(--cable)}
+
+/* Quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.qtext{font-size:1.06rem;margin:8px 0 14px;white-space:pre-wrap}
+.choice{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;margin:8px 0;min-height:48px}
+.choice .k{font-weight:700;min-width:1.5em;height:1.5em;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;background:var(--soft);font-size:.9rem}
+.choice[aria-pressed="true"]{border-color:var(--cable);background:color-mix(in srgb,var(--cable) 10%,var(--panel))}
+.choice.right{border-color:var(--ok);background:var(--okbg)}
+.choice.wrong{border-color:var(--bad);background:var(--badbg)}
+.fb{border-left:4px solid var(--ok);background:var(--okbg);padding:10px 12px;border-radius:0 10px 10px 0;margin:12px 0}
+.fb.no{border-color:var(--bad);background:var(--badbg)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;margin-top:10px}
+.navgrid button{min-height:36px;border:1px solid var(--line);background:var(--panel);border-radius:8px;font-size:.85rem}
+.navgrid .ans{background:var(--soft);font-weight:700}
+.navgrid .cur{border:2px solid var(--cable)}
+.navgrid .flg{box-shadow:inset 0 -3px 0 var(--c1)}
+.navgrid .pend{opacity:.4}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.sticky{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0}
+
+/* Markdown */
+.md{overflow-wrap:anywhere}
+.md h1,.md h2,.md h3{margin:1.1em 0 .4em}
+.md h1{font-size:1.3rem}.md h2{font-size:1.15rem}.md h3{font-size:1rem}
+.md table{display:block;overflow-x:auto;border-collapse:collapse;margin:10px 0;font-size:.9rem;max-width:100%}
+.md th,.md td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.md th{background:var(--soft)}
+.md code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:.9em}
+.md pre{background:var(--soft);padding:10px;border-radius:8px;overflow-x:auto}
+.md pre code{padding:0;background:none}
+.md ul,.md ol{padding-left:1.3em}
+.md blockquote{margin:8px 0;padding:4px 12px;border-left:4px solid var(--cable);color:var(--muted)}
+
+.chat .msg{padding:10px 12px;border-radius:12px;margin:8px 0}
+.chat .me{background:var(--soft);margin-left:18%}
+.chat .ai{border:1px solid var(--line)}
+.inrow{display:flex;gap:8px;margin-top:8px}
+.inrow textarea{flex:1;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px;min-height:44px;resize:vertical}
+.notice{border:1px solid var(--line);border-left:4px solid var(--c1);padding:10px 12px;border-radius:0 10px 10px 0;background:var(--panel);margin:12px 0}
+.hist{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:.93rem}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--cable);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}.meter .fill{transition:none}}
+.back{background:none;border:0;padding:8px 0;color:var(--muted);font-weight:700;min-height:44px}
+.live{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.live.on i{background:var(--ok)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:84px;margin:12px 0 4px}
+.week div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;font-size:.72rem;color:var(--muted)}
+.week b{display:block;width:100%;background:var(--cable);border-radius:4px 4px 0 0;min-height:2px}
+.week .today{color:var(--ink);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stats div{background:var(--soft);border-radius:10px;padding:8px}
+.stats b{display:block;font-family:var(--display);font-stretch:112%;font-size:1.1rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 10px;min-height:36px;font-size:.85rem}
+.seg button[aria-pressed="true"]{background:var(--cable);color:#fff;font-weight:700}
+.diagram{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}
+.diagram .dg{overflow-x:auto;color:var(--ink);margin:8px 0}
+.diagram .dg svg{max-width:100%;height:auto;display:block;margin:0 auto}
+.diagram figcaption{font-size:.93rem}
+.inrow input{flex:1;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px;min-height:44px;min-width:0}
+.vids a{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+.vids .vrow{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line)}
+.vids .vrow:first-of-type{border-top:0}
+.vids .vrow a{flex:1;border-top:0}
+.vids a span{color:var(--muted);font-size:.88rem}
+.vids a b{color:var(--cable)}
+/* Fruit highlights */
+mark.hl,.md strong{background:none;padding:0;font-weight:700}
+.md strong,mark.hl-k{color:var(--lime)}
+mark.hl-t{color:var(--orange)}
+mark.hl-n,.md code{color:var(--berry)}
+.md code{background:var(--soft)}
+mark.hl-h{color:var(--lemon);font-style:italic}
+.md h2{padding-left:10px;border-left:6px solid var(--line)}
+.md h2.s-k{border-color:var(--lime-b)} .md h2.s-t{border-color:var(--orange-b)} .md h2.s-n{border-color:var(--berry-b)} .md h2.s-h{border-color:var(--lemon-b)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:.82rem;margin:6px 0 2px}
+.legend mark{font-weight:700}
+.tag{display:inline-block;font-size:.78rem;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="live" id="live" role="status" aria-live="off"><i></i><span>Paused</span></div>
+
+<script>
+/* ============ Syllabus (aligned to CompTIA exam objectives) ============ */
+const EXAMS = {
+  c1:{id:"c1",name:"A+ Core 1",code:"220-1201",color:"--c1",pass:675,qs:90,mins:90,domains:[
+    {n:1,name:"Mobile Devices",w:13,objs:[["1.1","Mobile device hardware and component replacement"],["1.2","Mobile accessories and connection methods (Bluetooth, NFC, hotspot, USB)"],["1.3","Mobile device configuration, synchronization, email and MDM"]]},
+    {n:2,name:"Networking",w:23,objs:[["2.1","TCP and UDP ports, protocols and their purposes"],["2.2","Wireless networking technologies and 802.11 standards"],["2.3","Networked host services (DNS, DHCP, file, print, mail, proxy, IoT)"],["2.4","DNS record types, DHCP scopes and leases, VLANs and VPNs"],["2.5","Networking hardware (routers, switches, APs, firewalls, PoE, patch panels)"],["2.6","Internet connection types and network types (LAN, WAN, PAN, MAN)"],["2.7","Networking tools (crimper, cable tester, toner probe, Wi-Fi analyzer)"],["2.8","SOHO network configuration and IPv4/IPv6 addressing basics"]]},
+    {n:3,name:"Hardware",w:25,objs:[["3.1","Display types, components and attributes"],["3.2","Cable types and connectors (network, video, peripheral, storage)"],["3.3","RAM types, form factors and channel configurations"],["3.4","Storage devices, interfaces and RAID levels"],["3.5","Motherboards, CPUs, BIOS/UEFI settings and expansion cards"],["3.6","Power supplies, wattage and cooling"],["3.7","Printers and multifunction devices: types, setup and maintenance"]]},
+    {n:4,name:"Virtualization and Cloud Computing",w:11,objs:[["4.1","Virtualization concepts, hypervisors and VM requirements"],["4.2","Cloud models (IaaS, PaaS, SaaS; public, private, hybrid) and characteristics"]]},
+    {n:5,name:"Hardware and Network Troubleshooting",w:28,objs:[["5.1","CompTIA troubleshooting methodology"],["5.2","Troubleshooting motherboards, RAM, CPU and power"],["5.3","Troubleshooting storage drives and RAID arrays"],["5.4","Troubleshooting video, projector and display issues"],["5.5","Troubleshooting mobile devices"],["5.6","Troubleshooting printers"],["5.7","Troubleshooting wired and wireless network problems"]]}
+  ]},
+  c2:{id:"c2",name:"A+ Core 2",code:"220-1202",color:"--c2",pass:700,qs:90,mins:90,domains:[
+    {n:1,name:"Operating Systems",w:28,objs:[["1.1","Windows editions, features and upgrade paths"],["1.2","Windows command-line tools (ipconfig, chkdsk, sfc, gpupdate, robocopy, etc.)"],["1.3","Windows Settings, Control Panel and Microsoft Management Console tools"],["1.4","Windows networking configuration (workgroups, domains, shares, proxy)"],["1.5","OS installation methods, boot methods, partitions and file systems"],["1.6","macOS features and tools"],["1.7","Linux commands and features"],["1.8","Application installation requirements and cloud productivity tools"]]},
+    {n:2,name:"Security",w:28,objs:[["2.1","Physical security measures"],["2.2","Logical security: AAA, MFA, Active Directory, permissions, least privilege"],["2.3","Wireless security protocols and authentication"],["2.4","Malware types and removal tools"],["2.5","Social engineering attacks, threats and vulnerabilities"],["2.6","Windows security settings (Defender, Firewall, BitLocker, UAC, NTFS vs share permissions)"],["2.7","Workstation hardening best practices"],["2.8","Mobile device security"],["2.9","Data destruction and disposal methods"],["2.10","SOHO router and browser security settings"]]},
+    {n:3,name:"Software Troubleshooting",w:23,objs:[["3.1","Troubleshooting common Windows OS problems"],["3.2","Troubleshooting mobile OS and application issues"],["3.3","Troubleshooting mobile OS security issues"],["3.4","Troubleshooting PC security issues and the malware removal procedure"]]},
+    {n:4,name:"Operational Procedures",w:21,objs:[["4.1","Documentation, ticketing systems and asset management"],["4.2","Change management procedures"],["4.3","Backup and recovery methods"],["4.4","Safety procedures (ESD, electrical, lifting)"],["4.5","Environmental impacts and controls"],["4.6","Licensing, privacy, PII and prohibited content policies"],["4.7","Communication techniques and professionalism"],["4.8","Scripting basics (file types, use cases, risks)"],["4.9","Remote access technologies"],["4.10","Artificial intelligence basics and appropriate use"]]}
+  ]},
+  net:{id:"net",name:"Network+",code:"N10-009",color:"--net",pass:720,qs:90,mins:90,domains:[
+    {n:1,name:"Networking Concepts",w:23,objs:[["1.1","The OSI reference model"],["1.2","Networking appliances, applications and functions"],["1.3","Cloud concepts and connectivity options"],["1.4","Common ports, protocols, services and traffic types"],["1.5","Transmission media and transceivers"],["1.6","Network topologies, architectures and types"],["1.7","IPv4 addressing and subnetting"],["1.8","Modern network environments (SDN, SD-WAN, VXLAN, zero trust, IaC, IPv6)"]]},
+    {n:2,name:"Network Implementation",w:20,objs:[["2.1","Routing technologies (static, OSPF, BGP, EIGRP, FHRP, NAT)"],["2.2","Switching technologies (VLANs, 802.1Q, STP, link aggregation, MTU)"],["2.3","Wireless devices, frequencies, channels and technologies"],["2.4","Physical installation factors (racks, power, environment)"]]},
+    {n:3,name:"Network Operations",w:19,objs:[["3.1","Organizational processes, procedures and documentation"],["3.2","Network monitoring technologies (SNMP, syslog, NetFlow, baselines)"],["3.3","Disaster recovery concepts (RPO, RTO, MTTR, sites, testing)"],["3.4","IPv4 and IPv6 network services (DHCP, SLAAC, DNS, NTP, PTP)"],["3.5","Network access and management methods (VPN, SSH, jump box, OOB)"]]},
+    {n:4,name:"Network Security",w:14,objs:[["4.1","Network security concepts (CIA, encryption, PKI, IAM, segmentation)"],["4.2","Types of attacks and their impact"],["4.3","Network security features, defense techniques and solutions"]]},
+    {n:5,name:"Network Troubleshooting",w:24,objs:[["5.1","Network troubleshooting methodology"],["5.2","Cabling and physical interface issues"],["5.3","Network service issues (DHCP, DNS, routing, VLAN, ACL)"],["5.4","Network performance issues (latency, jitter, congestion, interference)"],["5.5","Troubleshooting tools and protocols (ping, traceroute, dig, tcpdump, show commands)"]]}
+  ]},
+  sec:{id:"sec",name:"Security+",code:"SY0-701",color:"--sec",pass:750,qs:90,mins:90,domains:[
+    {n:1,name:"General Security Concepts",w:12,objs:[["1.1","Security control categories and types"],["1.2","Fundamental security concepts (CIA, AAA, zero trust, deception)"],["1.3","Change management and its impact on security"],["1.4","Cryptographic solutions (PKI, encryption, hashing, certificates)"]]},
+    {n:2,name:"Threats, Vulnerabilities and Mitigations",w:22,objs:[["2.1","Threat actors and motivations"],["2.2","Threat vectors and attack surfaces"],["2.3","Types of vulnerabilities"],["2.4","Indicators of malicious activity"],["2.5","Mitigation techniques for the enterprise"]]},
+    {n:3,name:"Security Architecture",w:18,objs:[["3.1","Security implications of architecture models (cloud, IaC, serverless, ICS, IoT)"],["3.2","Applying security principles to enterprise infrastructure"],["3.3","Data protection concepts and strategies"],["3.4","Resilience and recovery in security architecture"]]},
+    {n:4,name:"Security Operations",w:28,objs:[["4.1","Security techniques for computing resources (baselines, hardening, wireless, apps)"],["4.2","Hardware, software and data asset management"],["4.3","Vulnerability management activities"],["4.4","Security alerting and monitoring concepts and tools"],["4.5","Modifying enterprise capabilities to enhance security"],["4.6","Identity and access management"],["4.7","Automation and orchestration in secure operations"],["4.8","Incident response activities"],["4.9","Using data sources to support an investigation"]]},
+    {n:5,name:"Security Program Management and Oversight",w:20,objs:[["5.1","Effective security governance"],["5.2","Risk management process"],["5.3","Third-party risk assessment and management"],["5.4","Security compliance"],["5.5","Audits and assessments"],["5.6","Security awareness practices"]]}
+  ]}
+};
+const ORDER = ["c1","c2","net","sec"];
+for (const e of Object.values(EXAMS)){
+  e.idx = {};
+  for (const d of e.domains) for (const [code,title] of d.objs) e.idx[code] = {code,title,domain:d};
+}
+
+/* ============ State ============ */
+const S = { exam: localGet("ct_exam") || "c1", view:"home", prog:{}, lessons:{}, db:null, uid:null, sample:null, sampleChecked:false, run:null, lesson:null, results:null, flash:"" };
+const $app = document.getElementById("app");
+
+function localGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function localSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function hlMarks(t){ return String(t||"").replace(/\[\[(k|t|n|h):([^\]\n]{1,160})\]\]/g,(m,c,x)=>`<mark class="hl hl-${c}">${esc(x)}</mark>`); }
+function headClass(txt){ const x=txt.toLowerCase();
+  if(/trap|exam tests|how the exam/.test(x)) return "s-t";
+  if(/must.memor|facts|numbers|ports/.test(x)) return "s-n";
+  if(/hook|mnemonic|remember/.test(x)) return "s-h";
+  return "s-k"; }
+function md(t){
+  if (window.marked && window.DOMPurify){ try{
+    let html=DOMPurify.sanitize(marked.parse(hlMarks(t)));
+    return html.replace(/<h2>([\s\S]*?)<\/h2>/g,(m,inner)=>`<h2 class="${headClass(inner.replace(/<[^>]+>/g,""))}">${inner}</h2>`);
+  }catch(e){} }
+  return "<p>"+esc(String(t||"").replace(/\[\[[ktnh]:([^\]]+)\]\]/g,"$1")).replace(/\n/g,"<br>")+"</p>";
+}
+const LEGEND=`<div class="legend" aria-label="Highlight key"><mark class="hl hl-k">key concept</mark><mark class="hl hl-n">memorize: numbers, ports, commands</mark><mark class="hl hl-t">exam trap</mark><mark class="hl hl-h">memory hook</mark></div>`;
+function blankProg(){ return {v:1, obj:{}, exams:[], missed:[], stems:[], time:{t:0,d:{}}, updated:0}; }
+function P(id){ id = id || S.exam; if(!S.prog[id]){ const raw = localGet("ct_prog_"+id); try{ S.prog[id] = raw ? JSON.parse(raw) : blankProg(); }catch(e){ S.prog[id]=blankProg(); } } return S.prog[id]; }
+function rec(id,code){ const p=P(id); if(!p.obj[code]) p.obj[code]={m:0,n:0,c:0,seen:false,due:0,iv:0}; return p.obj[code]; }
+
+/* ============ Persistence (db per viewer, localStorage fallback) ============ */
+const saveState = {};
+function persist(id){
+  id = id || S.exam; const p = P(id); p.updated = Date.now();
+  localSet("ct_prog_"+id, JSON.stringify(p));
+  clearTimeout(saveState[id+"t"]);
+  saveState[id+"t"] = setTimeout(()=>dbWrite("prog_"+id, ()=>P(id)), 900);
+}
+const writing = {}, pendingW = {};
+function dbWrite(docId){ if(/^(lesson|diag)_/.test(docId)) Sync.libDirty=true; schedulePush(); }
+async function dbRead(){ return null; }
+async function syncFromDb(){
+  for (const id of ORDER){
+    const remote = await dbRead("prog_"+id);
+    const local = P(id);
+    if(remote && (remote.updated||0) > (local.updated||0)){ S.prog[id] = JSON.parse(JSON.stringify(remote)); localSet("ct_prog_"+id, JSON.stringify(remote)); }
+    else if(local.updated){ dbWrite("prog_"+id, ()=>P(id)); }
+  }
+  const pr = await dbRead("prefs"); if(pr && pr.goal) localSet("ct_goal", String(pr.goal));
+  if(S.view==="home") render();
+}
+function lessonKey(id,code){ return "lesson_"+id+"_"+code; }
+async function getLesson(id,code){
+  const k = lessonKey(id,code);
+  if(S.lessons[k]) return S.lessons[k];
+  const l = localGet("ct_"+k); if(l){ S.lessons[k]=l; return l; }
+  const r = await dbRead(k); if(r && r.text){ S.lessons[k]=r.text; localSet("ct_"+k, r.text); return r.text; }
+  return null;
+}
+function saveLesson(id,code,text){
+  const k=lessonKey(id,code); S.lessons[k]=text; localSet("ct_"+k,text);
+  dbWrite(k, ()=>({text, at:Date.now()}));
+}
+
+/* ============ Mastery + scheduling ============ */
+function mastery(id,code){ const r=P(id).obj[code]; return r ? r.m : 0; }
+function recordAnswer(id, code, correct){
+  const r = rec(id,code); r.n++; if(correct) r.c++;
+  r.m = +(r.m*0.65 + (correct?0.35:0)).toFixed(3);
+  const day = 864e5;
+  if(correct){ r.iv = Math.min(30, Math.max(1, (r.iv||0.5)*2.2)); r.due = Date.now()+r.iv*day; }
+  else { r.iv = 0.5; r.due = Date.now(); }
+}
+function domainMastery(e,d){ return d.objs.reduce((s,[c])=>s+mastery(e.id,c),0)/d.objs.length; }
+function readiness(e){ return e.domains.reduce((s,d)=>s+d.w/100*domainMastery(e,d),0); }
+function answeredCount(e){ return Object.values(P(e.id).obj).reduce((s,r)=>s+r.n,0); }
+function weakest(e, n){
+  const now=Date.now(), items=[];
+  for(const d of e.domains) for(const [c] of d.objs){
+    const r=P(e.id).obj[c]||{m:0,n:0,due:0};
+    let score=(1-r.m)*(0.6+d.w/40);
+    if(r.n && r.due<=now) score+=0.35;
+    if(!r.n) score+=0.15;
+    score += Math.random()*0.15;
+    items.push([score,c]);
+  }
+  items.sort((a,b)=>b[0]-a[0]);
+  const out=items.slice(0,n).map(x=>x[1]);
+  while(out.length<n) out.push(items[out.length%items.length][1]);
+  return out;
+}
+function examPlan(e, N){
+  const plan=[];
+  const counts=e.domains.map(d=>Math.round(d.w/100*N));
+  let diff=N-counts.reduce((a,b)=>a+b,0);
+  counts[counts.indexOf(Math.max(...counts))]+=diff;
+  e.domains.forEach((d,i)=>{
+    const pool=[...d.objs.map(o=>o[0])].sort(()=>Math.random()-.5);
+    for(let k=0;k<counts[i];k++) plan.push(pool[k%pool.length]);
+  });
+  return plan.sort(()=>Math.random()-.5);
+}
+function nextUp(e){
+  const p=P(e.id), now=Date.now();
+  const all=e.domains.flatMap(d=>d.objs.map(o=>o[0]));
+  const weak=all.filter(c=>{const r=p.obj[c]; return r && r.n && (r.m<0.7 || r.due<=now);});
+  const unseen=all.filter(c=>!(p.obj[c]&&p.obj[c].seen));
+  if(weak.length>=3) return {kind:"drill", title:"Drill your weak spots", sub:weak.length+" objectives need review"};
+  if(unseen.length) return {kind:"learn", code:unseen[0], title:"Learn "+unseen[0], sub:e.idx[unseen[0]].title};
+  return {kind:"exam", title:"Take a full practice exam", sub:"You've covered every objective"};
+}
+
+/* ============ Claude (sample capability) ============ */
+function errCopy(e){
+  const c=e&&e.code;
+  if(c==="no_key") return "Add your Anthropic API key in Settings first.";
+  if(c==="bad_key") return "Your API key was rejected. Check it in Settings.";
+  if(c==="no_credit") return "Your Anthropic account is out of credits. Add credits at console.anthropic.com.";
+  if(c==="overloaded") return "Claude is busy right now. Try again in a moment.";
+  if(c==="network") return "No connection. Check your internet and try again.";
+  if(c==="bad_model") return "That model isn't available on your API account. Pick another in Settings.";
+  if(c==="rate_limited") return "Too many requests at once. Wait a minute, then try again.";
+  if(c==="cancelled") return "Stopped.";
+  if(c==="invalid_json") return "The questions came back in a format the app couldn't read. Try again.";
+  return "Something went wrong reaching Claude"+(c?" ("+c+")":"")+". Try again.";
+}
+function needSample(){
+  if(apiKey()) return true;
+  S.flash = "Add your Anthropic API key in Settings to generate lessons and questions.";
+  S.view="home"; render(); return false;
+}
+function validQ(q, e){
+  if(!q || typeof q.q!=="string" || !Array.isArray(q.choices) || q.choices.length<3 || q.choices.length>6) return null;
+  let ans = Array.isArray(q.answer) ? q.answer : [q.answer];
+  ans = [...new Set(ans.map(Number))].filter(i=>Number.isInteger(i) && i>=0 && i<q.choices.length);
+  if(!ans.length) return null;
+  const obj = e.idx[String(q.obj)] ? String(q.obj) : null;
+  return {obj, q:q.q, choices:q.choices.map(String), answer:ans.sort(), explain:String(q.explain||""), traps:String(q.traps||"")};
+}
+async function genQuestions(e, codes, signal){
+  const p=P(e.id);
+  const list = codes.map((c,i)=>`${i+1}. ${c} ${e.idx[c].title} (domain: ${e.idx[c].domain.name})`).join("\n");
+  const avoid = p.stems.slice(-25).map(s=>"- "+s).join("\n") || "- (none)";
+  const prompt = `You write practice questions for the CompTIA ${e.name} exam (${e.code}).
+Write exactly ${codes.length} original questions, one per objective below, in the same order:
+${list}
+
+Match the real exam's style: mostly short workplace scenarios ("A technician...", "A user reports...", "A security analyst..."), one clearly best answer, four plausible choices, no "all of the above" or "none of the above". Make roughly one in five multiple-response, ending the question with "(Choose TWO.)" and listing five choices. Vary difficulty from moderate to hard. Every fact (ports, commands, standards, speeds, acronyms, procedure steps) must be correct for the current exam objectives.
+
+Avoid repeating these recently asked topics:
+${avoid}
+
+Reply with only a JSON array. Each item:
+{"obj":"2.1","q":"question text","choices":["...","...","...","..."],"answer":[0],"explain":"2-4 sentences on why the answer is right, ending with the key fact to remember","traps":"one sentence on why the most tempting wrong choice is wrong"}
+"answer" holds 0-based indexes of every correct choice.`;
+  const out = await S.sample.json(prompt, {modelTier:"default", cache:false, signal});
+  const arr = Array.isArray(out) ? out : (out && Array.isArray(out.questions) ? out.questions : []);
+  const qs = arr.map(q=>validQ(q,e)).filter(Boolean).map((q,i)=>{ if(!q.obj) q.obj = codes[i] || codes[0]; return q; });
+  for(const q of qs){ p.stems.push(q.q.slice(0,90)); }
+  p.stems = p.stems.slice(-40);
+  return qs;
+}
+
+/* ============ Study timer (counts only active, engaged time) ============ */
+const IDLE_MS = 120000, TICK = 5;
+let lastActive = 0, unsaved = 0, isLive = false;
+function markActive(){ lastActive = Date.now(); if(!isLive) tick(true); }
+["pointerdown","touchstart","keydown","wheel","input","scroll"].forEach(ev=>addEventListener(ev, markActive, {passive:true, capture:true}));
+function dayKey(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function tm(p){ if(!p.time) p.time={t:0,d:{}}; return p.time; }
+function engaged(){ return document.visibilityState==="visible" && Date.now()-lastActive < IDLE_MS; }
+function tick(onlyUi){
+  isLive = engaged();
+  if(isLive && !onlyUi){
+    const p=P(), T=tm(p), k=dayKey();
+    T.t+=TICK; T.d[k]=(T.d[k]||0)+TICK; unsaved+=TICK;
+    if(unsaved>=60){ unsaved=0; pruneDays(T); persist(); }
+  }
+  paintLive();
+  bindBackup();
+}
+setInterval(()=>tick(false), TICK*1000);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState!=="visible" && unsaved){ unsaved=0; persist(); } tick(true); });
+function pruneDays(T){ const cut=dayKey(new Date(Date.now()-120*864e5)); for(const k in T.d) if(k<cut) delete T.d[k]; }
+function dayTotal(k){ return ORDER.reduce((s,id)=>s+((tm(P(id)).d[k])||0),0); }
+function fmtDur(sec){ sec=Math.round(sec); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60); return h? h+"h "+m+"m" : m+"m"; }
+function streak(){
+  let n=0, d=new Date(); if(dayTotal(dayKey(d))<300) d=new Date(d.getTime()-864e5);
+  while(dayTotal(dayKey(d))>=300){ n++; d=new Date(d.getTime()-864e5); }
+  return n;
+}
+function goalMin(){ return +(localGet("ct_goal")||60); }
+function paintLive(){
+  const el=document.getElementById("live"); if(!el) return;
+  el.className="live"+(isLive?" on":"");
+  el.querySelector("span").textContent=(isLive?"Studying · ":"Paused · ")+fmtDur(dayTotal(dayKey()))+" today";
+  const t=document.getElementById("todayNum"); if(t) t.textContent=fmtDur(dayTotal(dayKey()));
+}
+function timeHTML(e){
+  const today=dayKey(), tToday=dayTotal(today), goal=goalMin()*60;
+  const days=[...Array(7)].map((_,i)=>{ const d=new Date(Date.now()-(6-i)*864e5); return {k:dayKey(d), lbl:d.toLocaleDateString(undefined,{weekday:"narrow"}), v:dayTotal(dayKey(d))}; });
+  const max=Math.max(goal, ...days.map(d=>d.v));
+  const week=days.reduce((s,d)=>s+d.v,0);
+  const allTotal=ORDER.reduce((s,id)=>s+tm(P(id)).t,0), st=streak();
+  return `<section class="panel" aria-label="Study time"><div class="spread"><h2>Study time</h2>
+    <div class="seg" role="group" aria-label="Daily goal">${[30,60,90].map(g=>`<button data-goal="${g}" aria-pressed="${goalMin()===g}">${g}m</button>`).join("")}</div></div>
+    <p><span class="big" id="todayNum">${fmtDur(tToday)}</span> <span class="muted">of ${goalMin()}m today</span></p>
+    <div class="meter"><div class="fill" style="width:${Math.min(100,tToday/goal*100)}%"></div></div>
+    <div class="week" aria-label="Last 7 days">${days.map(d=>`<div class="${d.k===today?"today":""}" title="${fmtDur(d.v)}"><b style="height:${d.v/max*62}px"></b>${d.lbl}</div>`).join("")}</div>
+    <div class="stats"><div><b>${fmtDur(week)}</b><span class="small muted">this week</span></div><div><b>${fmtDur(tm(P(e.id)).t)}</b><span class="small muted">${esc(e.name)}</span></div><div><b>${st} day${st===1?"":"s"}</b><span class="small muted">streak</span></div></div>
+    <p class="small muted">All exams: ${fmtDur(allTotal)}. Time counts only while this page is on screen and you've tapped, scrolled or typed in the last 2 minutes; a day counts toward your streak at 5+ minutes.</p></section>`;
+}
+function nudgeHTML(){
+  const t=dayTotal(dayKey()), st=streak();
+  if(t>=goalMin()*60) return `<div class="notice" style="border-left-color:var(--ok)">Daily goal done. Nice work.</div>`;
+  if(t<300 && st>0) return `<div class="notice">Your ${st}-day streak ends tonight unless you get in 5+ minutes today.</div>`;
+  if(t<300){ const last=[...Array(60)].map((_,i)=>i+1).find(i=>dayTotal(dayKey(new Date(Date.now()-i*864e5)))>=300); if(last) return `<div class="notice">Last study session was ${last} day${last===1?"":"s"} ago. Ten minutes today keeps it fresh.</div>`; }
+  return "";
+}
+
+/* ============ Settings (shared) ============ */
+function settingsExtraHTML(){ return ""; }
+function bindSettingsExtra(){}
+function renderSettings(){
+  const cur=document.documentElement.dataset.theme||"dark";
+  $app.innerHTML=`<button class="back" id="back">‹ Home</button><h1>Settings</h1>${settingsExtraHTML()}
+  <section class="panel"><h2>Theme</h2><div class="seg" role="group" aria-label="Theme"><button data-th="dark" aria-pressed="${cur==="dark"}">Dark</button><button data-th="light" aria-pressed="${cur==="light"}">Light</button></div></section>
+  <section class="panel"><h2>Keyboard (desktop)</h2><p class="small">In questions: <b>1–6</b> or <b>A–F</b> pick an answer, <b>Enter</b> checks or moves on, <b>← →</b> move between exam questions.</p></section>`;
+  $("#back").onclick=()=>go("home");
+  $app.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{ document.documentElement.dataset.theme=b.dataset.th; localSet("ct_theme",b.dataset.th); mermaidReady=false; renderSettings(); });
+  bindSettingsExtra();
+}
+
+/* ============ Backup & transfer ============ */
+S.backup={mode:null,text:"",msg:"",busy:false};
+async function prepareBackup(){
+  const B=S.backup; B.busy=true; B.msg="Gathering your lessons and progress…"; B.mode="export"; B.text=""; render();
+  if(S.db && S.uid){
+    const jobs=[];
+    for(const id of ORDER) for(const code of Object.keys(EXAMS[id].idx)){
+      if(!localGet("ct_"+lessonKey(id,code))) jobs.push(()=>getLesson(id,code));
+      if(!localGet("ct_"+diagKey(id,code))) jobs.push(()=>getDiagrams(id,code));
+    }
+    for(let i=0;i<jobs.length;i+=12) await Promise.all(jobs.slice(i,i+12).map(f=>f().catch(()=>null)));
+  }
+  const local={};
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^ct_(lesson|diag)_/.test(k)) local[k]=localStorage.getItem(k); } }catch(e){}
+  const prog={}; ORDER.forEach(id=>prog[id]=P(id));
+  B.text=JSON.stringify({app:"cyberop",v:1,at:Date.now(),goal:goalMin(),prog,local});
+  B.busy=false; B.msg=`Backup ready (${Math.round(B.text.length/1024)} KB). Tap Copy, then paste it into the other app's Restore box.`; render();
+}
+function restoreBackup(txt){
+  const b=JSON.parse(txt.trim());
+  if(!b || b.app!=="cyberop" || !b.prog) throw new Error("not a CyberOP backup");
+  for(const [k,v] of Object.entries(b.local||{})){
+    if(!/^ct_(lesson|diag)_/.test(k) || typeof v!=="string") continue;
+    localSet(k,v); const docId=k.slice(3);
+    if(docId.startsWith("lesson_")) dbWrite(docId,()=>({text:v,at:Date.now()}));
+    else { try{ const items=JSON.parse(v); dbWrite(docId,()=>({items})); }catch(e){} }
+  }
+  S.lessons={};
+  for(const id of ORDER){ if(b.prog[id]){ S.prog[id]=b.prog[id]; persist(id); } }
+  if(b.goal){ localSet("ct_goal",String(b.goal)); dbWrite("prefs",()=>({goal:+b.goal})); }
+}
+function backupHTML(){
+  const B=S.backup;
+  let h=`<section class="panel"><h2>Backup and transfer</h2><p class="small muted">Move your progress between this app and the Claude version. Phone and desktop copies of this app sync automatically once Sync is set up in Settings.</p>
+    <div class="row"><button class="btn" id="bkExport" ${B.busy?"disabled":""}>Create backup</button><button class="btn ghost" id="bkImport">Restore from backup</button></div>`;
+  if(B.msg) h+=`<p class="small">${B.busy?'<span class="spin"></span>':""}${esc(B.msg)}</p>`;
+  if(B.mode==="export" && B.text) h+=`<div class="inrow"><textarea id="bkText" rows="3" readonly>${esc(B.text)}</textarea><button class="btn primary" id="bkCopy">Copy</button></div>`;
+  if(B.mode==="import") h+=`<div class="inrow"><textarea id="bkIn" rows="3" placeholder="Paste your CyberOP backup here"></textarea><button class="btn primary" id="bkRestore">Restore</button></div><p class="small muted">Restoring replaces the progress in this app with the backup's.</p>`;
+  return h+`</section>`;
+}
+function bindBackup(){
+  const B=S.backup;
+  $("#bkExport")&&($("#bkExport").onclick=prepareBackup);
+  $("#bkImport")&&($("#bkImport").onclick=()=>{ B.mode="import"; B.msg=""; B.text=""; render(); });
+  $("#bkCopy")&&($("#bkCopy").onclick=async()=>{
+    const ta=$("#bkText"); let ok=false;
+    try{ await navigator.clipboard.writeText(B.text); ok=true; }catch(e){ try{ ta.focus(); ta.select(); ok=document.execCommand("copy"); }catch(e2){} }
+    B.msg= ok ? "Copied. Open the other app, go to Backup and transfer, tap Restore, and paste." : "Couldn't copy automatically. Press and hold in the box, Select all, then Copy.";
+    render();
+  });
+  $("#bkRestore")&&($("#bkRestore").onclick=()=>{
+    const v=$("#bkIn").value; if(!v.trim()) return;
+    if(!confirm("Replace this app's progress with the backup?")) return;
+    try{ restoreBackup(v); B.mode=null; B.msg="Restored. Your progress, lessons and diagrams are in."; }catch(e){ B.msg="That doesn't look like a complete CyberOP backup. Copy it again and paste the whole thing."; }
+    render();
+  });
+}
+
+/* ============ Rendering ============ */
+function setCable(){ document.documentElement.style.setProperty("--cable", `var(${EXAMS[S.exam].color})`); }
+function go(view){ S.view=view; S.flash=""; render(); window.scrollTo(0,0); }
+
+function render(){
+  setCable(); $app.className="wrap v-"+S.view;
+  if(S.view==="home") return renderHome();
+  if(S.view==="lesson") return renderLesson();
+  if(S.view==="quiz") return renderQuiz();
+  if(S.view==="results") return renderResults();
+  if(S.view==="settings") return renderSettings();
+}
+
+function cablesHTML(){
+  return `<div class="cables" role="group" aria-label="Choose exam">`+ORDER.map(id=>{
+    const e=EXAMS[id];
+    return `<button class="cable" style="--cc:var(${e.color})" aria-pressed="${id===S.exam}" data-exam="${id}"><span class="boot"></span><span class="lbl"><b>${e.name}</b><span>${e.code}</span></span></button>`;
+  }).join("")+`</div>`;
+}
+
+function renderHome(){
+  const e=EXAMS[S.exam], p=P(), r=readiness(e), n=answeredCount(e), nu=nextUp(e);
+  const lastEx = p.exams[p.exams.length-1];
+  let L = `<div class="top"><h1>CyberOP</h1><span class="small muted">${n} answered</span></div>` + cablesHTML();
+  if(S.flash) L+=`<div class="notice">${esc(S.flash)}</div>`;
+  L += welcomeHTML();
+  L += nudgeHTML();
+  L += `<section class="panel" aria-label="Readiness">
+    <div class="spread"><div><div class="big">${Math.round(r*100)}%</div><div class="small muted">estimated readiness for ${e.code}</div></div>
+    <div class="small muted" style="text-align:right">Pass mark ${e.pass}/900<br>${e.qs} questions, ${e.mins} min</div></div>
+    <div class="meter" role="img" aria-label="Readiness ${Math.round(r*100)} percent; target 85 percent"><div class="fill" style="width:${r*100}%"></div><div class="mark" style="left:85%"></div></div>
+    <p class="small muted">${n<20?"Answer questions to build this score. ":""}Aim to pass the line (85%) and score ${e.pass}+ on two full practice exams before booking.${lastEx?` Last practice exam: <b>${lastEx.score}</b> (${lastEx.score>=e.pass?"pass":"below pass"}).`:""}</p>
+  </section>
+  <section class="panel"><h2>Next up</h2><p class="muted">${esc(nu.sub)}</p>
+    <button class="btn primary" data-next="1">${esc(nu.title)}</button></section>
+  <div class="grid2">
+    <button class="action" data-act="learn"><b>Learn</b><span>Next objective in order, with a tutor you can question</span></button>
+    <button class="action" data-act="drill"><b>Drill weak spots</b><span>10 questions picked from what you know least</span></button>
+    <button class="action" data-act="exam30"><b>Short exam</b><span>30 questions, 30 min, weighted like the real one</span></button>
+    <button class="action" data-act="exam90"><b>Full practice exam</b><span>90 questions, 90 min, scored out of 900</span></button>
+    <button class="action" data-act="review" ${p.missed.length?"":"disabled"}><b>Review mistakes</b><span>${p.missed.length} missed question${p.missed.length===1?"":"s"} saved</span></button>
+    <button class="action" data-act="settings"><b>Settings</b><span>${settingsSub()}</span></button>
+  </div>
+  ${timeHTML(e)}`;
+  let R2 = `<section class="panel"><h2>Domains</h2><p class="small muted">Tap a domain to see its objectives. Dots fill as your mastery grows.</p>`;
+  for(const d of e.domains){
+    const dm=domainMastery(e,d);
+    R2+=`<details class="dom"><summary><div class="spread"><h3>${d.n}.0 ${esc(d.name)}</h3><span class="small muted">${d.w}% of exam</span></div>
+      <div class="bar" aria-label="${Math.round(dm*100)} percent mastery"><i style="width:${dm*100}%"></i></div></summary>`;
+    for(const [c,t] of d.objs){
+      const rr=p.obj[c]; const m=rr?rr.m:0; const cls=m>=0.8?"m3":m>=0.5?"m2":m>=0.2?"m1":"";
+      R2+=`<div class="obj"><span class="dot ${cls}" title="${Math.round(m*100)}% mastery"></span><span class="code">${c}</span><span class="t">${esc(t)}${rr&&rr.seen?"":' <span class="tag">new</span>'}</span>
+        <button class="btn sm" data-learn="${c}">Learn</button><button class="btn sm ghost" data-drill="${c}">Quiz</button></div>`;
+    }
+    R2+=`</details>`;
+  }
+  R2+=`</section>`;
+  if(p.exams.length){
+    R2+=`<section class="panel"><h2>Practice exam history</h2>`+p.exams.slice(-8).reverse().map(x=>`<div class="hist"><span>${new Date(x.date).toLocaleDateString()} · ${x.n} questions</span><b style="color:${x.score>=e.pass?"var(--ok)":"var(--bad)"}">${x.score}</b></div>`).join("")+`</section>`;
+  }
+  R2+=backupHTML();
+  R2+=`<p class="small muted">Objectives follow CompTIA's published exam outlines; check comptia.org for the latest version before you book. Security+ SY0-801 is expected to launch in late 2026, with SY0-701 available for months after. AI-written questions can occasionally be wrong — use "Ask why" to challenge any answer that looks off.</p>`;
+  $app.innerHTML=`<div class="homegrid"><div>${L}</div><div>${R2}</div></div>`;
+
+  $app.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>{ S.exam=b.dataset.exam; localSet("ct_exam",S.exam); S.flash=""; render(); });
+  $app.querySelector("[data-next]").onclick=()=>{ if(nu.kind==="learn") openLesson(nu.code); else if(nu.kind==="drill") startDrill(); else startExam(90); };
+  $app.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const a=b.dataset.act;
+    if(a==="learn"){ const nx=e.domains.flatMap(d=>d.objs.map(o=>o[0])).find(c=>!(p.obj[c]&&p.obj[c].seen)) || weakest(e,1)[0]; openLesson(nx); }
+    if(a==="drill") startDrill();
+    if(a==="exam30") startExam(30);
+    if(a==="exam90") startExam(90);
+    if(a==="review") startReview();
+    if(a==="settings") go("settings");
+  });
+  $app.querySelectorAll("[data-learn]").forEach(b=>b.onclick=()=>openLesson(b.dataset.learn));
+  $app.querySelectorAll("[data-goal]").forEach(b=>b.onclick=()=>{ localSet("ct_goal",b.dataset.goal); dbWrite("prefs",()=>({goal:+b.dataset.goal})); render(); });
+  $app.querySelectorAll("[data-drill]").forEach(b=>b.onclick=()=>startDrill([b.dataset.drill,b.dataset.drill,b.dataset.drill,b.dataset.drill,b.dataset.drill], "Quiz: "+b.dataset.drill));
+  paintLive();
+  bindBackup();
+}
+function welcomeHTML(){ return apiKey() ? "" : `<div class="notice">Welcome to CyberOP. Add your Anthropic API key to start. <button class="btn sm primary" data-act="settings">Open Settings</button></div>`; }
+function settingsSub(){ return "API key, sync, theme"; }
+
+/* ============ Lessons + tutor chat ============ */
+async function openLesson(code){
+  const e=EXAMS[S.exam];
+  S.lesson={exam:e.id, code, text:"", status:"loading", err:"", chat:[], ctl:null, diagrams:[], drawing:false, dErr:""};
+  go("lesson");
+  getDiagrams(e.id, code).then(d=>{ if(S.lesson && S.lesson.code===code && d){ S.lesson.diagrams=d; if(S.view==="lesson" && S.lesson.status==="done") renderLesson(); } });
+  const cached = await getLesson(e.id, code);
+  if(cached){ S.lesson.text=cached; S.lesson.status="done"; markSeen(e.id,code); renderLesson(); return; }
+  generateLesson();
+}
+function markSeen(id,code){ const r=rec(id,code); if(!r.seen){ r.seen=true; persist(id); } }
+async function generateLesson(){
+  const L=S.lesson, e=EXAMS[L.exam], o=e.idx[L.code];
+  if(!needSample()){ L.status="error"; L.err=S.flash; renderLesson(); return; }
+  L.status="loading"; L.text=""; L.err=""; L.ctl=new AbortController(); renderLesson();
+  const prompt = `You are an expert CompTIA instructor. Teach objective ${o.code} "${o.title}" (domain ${o.domain.n}.0 ${o.domain.name}) for the CompTIA ${e.name} exam (${e.code}) to a motivated beginner with no IT job experience.
+
+Write in Markdown with these sections:
+## The big idea — two plain-language sentences.
+## Core concepts — explain each sub-topic this objective covers, with a concrete real-world example for each.
+## Must-memorize facts — a compact table of the specific facts the exam expects (ports, commands, standards, speeds, steps, definitions) where this objective has them.
+## How the exam tests this — typical scenario wording, look-alike terms that get confused, and common traps.
+## Memory hooks — three short mnemonics or analogies.
+## Recap — five one-line bullets.
+
+Highlight with these inline markers (they render as colored highlights):
+[[k:term]] for key concepts and definitions, the first time each appears (about 8-15 in the lesson)
+[[n:fact]] for must-memorize specifics: port numbers, commands, standards, speeds, distances, steps
+[[t:text]] for exam traps and commonly confused look-alikes
+[[h:text]] for memory hooks and mnemonics
+Keep each marked span short (a word to a short phrase), don't nest markers, and don't use **bold**.
+
+Be accurate to the current exam objectives. Around 800-1100 words. No preamble.`;
+  let raf=0;
+  try{
+    const {text} = await S.sample(prompt, {modelTier:"default", signal:L.ctl.signal, onText:({text})=>{ L.text=text; L.status="streaming"; if(!raf) raf=requestAnimationFrame(()=>{raf=0; paintLessonBody();}); }});
+    L.text=text; L.status="done"; saveLesson(e.id,L.code,text); markSeen(e.id,L.code);
+  }catch(err){ L.status= L.text ? "done" : "error"; L.err=errCopy(err); if(err.text) L.text=err.text; }
+  if(S.view==="lesson") renderLesson();
+}
+/* ============ Visuals: diagrams + video links ============ */
+function shortTitle(t){ return t.replace(/\s*\(.*?\)\s*/g," ").replace(/\s+/g," ").trim(); }
+function yt(q){ return "https://www.youtube.com/results?search_query="+encodeURIComponent(q); }
+function videoLinks(e,o){
+  const t=shortTitle(o.title);
+  return [
+    {q:`Professor Messer ${e.code} ${o.code} ${t}`, href:yt(`Professor Messer ${e.code} ${o.code} ${t}`), name:"Professor Messer", note:"Free full course, one video per objective"},
+    {q:`PowerCert ${t}`, href:yt(`PowerCert ${t}`), name:"PowerCert Animated Videos", note:"Animated explainers, great for hardware and networking"},
+    {q:`${t} explained CompTIA ${e.name}`, href:yt(`${t} explained CompTIA ${e.name}`), name:"Other explainers", note:"More instructors covering this topic"}
+  ];
+}
+function diagKey(id,code){ return "diag_"+id+"_"+code; }
+async function getDiagrams(id,code){
+  const l=localGet("ct_"+diagKey(id,code)); if(l){ try{ return JSON.parse(l); }catch(e){} }
+  const r=await dbRead(diagKey(id,code)); if(r && Array.isArray(r.items)){ localSet("ct_"+diagKey(id,code), JSON.stringify(r.items)); return r.items; }
+  return [];
+}
+function saveDiagrams(id,code,items){
+  const clean=items.map(({type,title,code:c,caption})=>({type,title,code:c,caption}));
+  localSet("ct_"+diagKey(id,code), JSON.stringify(clean));
+  dbWrite(diagKey(id,code), ()=>({items:clean}));
+}
+let mermaidReady=false, mermaidSeq=0;
+function isDark(){ const t=document.documentElement.dataset.theme; return t ? t==="dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
+function initMermaid(){
+  if(!window.mermaid) return false;
+  mermaid.initialize({startOnLoad:false, securityLevel:"strict", theme:isDark()?"dark":"neutral", flowchart:{htmlLabels:false}, fontFamily:"Atkinson Hyperlegible, sans-serif"});
+  mermaidReady=true; return true;
+}
+async function toSvg(d){
+  if(d.type==="mermaid"){
+    if(!mermaidReady && !initMermaid()) throw new Error("Diagram library didn't load");
+    await mermaid.parse(d.code);
+    const {svg}=await mermaid.render("mmd"+(++mermaidSeq), d.code);
+    return window.DOMPurify ? DOMPurify.sanitize(svg,{USE_PROFILES:{svg:true,svgFilters:true}}) : svg;
+  }
+  if(!window.DOMPurify) throw new Error("Sanitizer didn't load");
+  const clean=DOMPurify.sanitize(d.code,{USE_PROFILES:{svg:true,svgFilters:true}});
+  if(!/<svg[\s>]/i.test(clean)) throw new Error("No drawable diagram");
+  return clean;
+}
+async function paintDiagrams(){
+  const L=S.lesson; if(!L) return;
+  for(let i=0;i<L.diagrams.length;i++){
+    const d=L.diagrams[i], el=document.querySelector(`.dg[data-i="${i}"]`); if(!el) continue;
+    if(!d._svg && !d._err){ try{ d._svg=await toSvg(d); }catch(err){ d._err="This diagram couldn't be drawn. Remove it and try again."; } }
+    const el2=document.querySelector(`.dg[data-i="${i}"]`); if(el2) el2.innerHTML = d._svg || `<p class="small muted">${esc(d._err)}</p>`;
+  }
+}
+async function drawDiagram(){
+  const L=S.lesson, e=EXAMS[L.exam], o=e.idx[L.code];
+  if(L.drawing || !needSample()) return;
+  const focus=(document.getElementById("dfocus")||{}).value?.trim()||"";
+  L.drawing=true; L.dErr=""; renderLesson();
+  const prompt=`Create one clear teaching diagram for the CompTIA ${e.name} exam (${e.code}), objective ${o.code} "${o.title}"${focus?`, focused on: ${focus}`:""}.
+${L.diagrams.length?`Already drawn (make something different): ${L.diagrams.map(d=>d.title).join("; ")}.\n`:""}Lesson excerpt for context:
+${L.text.slice(0,5000)}
+
+Pick the form that teaches it best:
+- "mermaid": for processes, sequences, handshakes, flows, decision trees and layered models. Use flowchart TD/LR or sequenceDiagram. Short labels in double quotes, no style/classDef/click directives, no HTML, no emojis.
+- "svg": for physical layouts, network topologies, connectors and ports, hardware components, side-by-side comparisons. Rules: root <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420"> with no width or height attributes; transparent background; text and outlines use currentColor; color highlights only lime #7CC522, orange #F28C1E, berry #D6336C and lemon #E8C31A (shape fills at fill-opacity 0.18-0.3); font-family sans-serif, font-size 13-16; no script, no external images, no foreignObject; keep all text inside the canvas and never overlapping.
+
+Every fact must be correct for the exam. Reply with only JSON:
+{"type":"mermaid or svg","title":"short title","code":"the diagram source","caption":"2-3 sentences: what to notice and how it shows up in exam questions"}`;
+  try{
+    const d=await S.sample.json(prompt,{modelTier:"default",cache:false});
+    if(!d || !d.code || !["mermaid","svg"].includes(d.type)) throw {code:"invalid_json"};
+    const item={type:d.type,title:String(d.title||"Diagram"),code:String(d.code),caption:String(d.caption||"")};
+    try{ item._svg=await toSvg(item); }catch(err){ throw {code:"draw_failed"}; }
+    L.diagrams.push(item); saveDiagrams(L.exam,L.code,L.diagrams);
+  }catch(err){ L.dErr = err.code==="draw_failed" ? "Claude's diagram didn't render cleanly. Tap Draw again for a new one." : errCopy(err); }
+  L.drawing=false; if(S.view==="lesson") renderLesson();
+}
+
+function paintLessonBody(){ const el=document.getElementById("lessonBody"); if(el) el.innerHTML = md(S.lesson.text); }
+function renderLesson(){
+  const L=S.lesson, e=EXAMS[L.exam], o=e.idx[L.code];
+  const all=e.domains.flatMap(d=>d.objs.map(x=>x[0])), i=all.indexOf(L.code), nextC=all[i+1];
+  let h=`<button class="back" id="back">‹ ${esc(e.name)} home</button>
+  <h1>${o.code} ${esc(o.title)}</h1><p class="small muted">${e.code} · Domain ${o.domain.n}.0 ${esc(o.domain.name)} (${o.domain.w}%)</p>`;
+  if(L.status==="loading") h+=`<div class="panel"><span class="spin"></span>Writing your lesson. This usually takes 20–60 seconds. <button class="btn sm ghost" id="stop">Stop</button></div>`;
+  if(L.err) h+=`<div class="notice">${esc(L.err)} <button class="btn sm" id="retry">Try again</button></div>`;
+  h+=LEGEND+`<article class="panel md" id="lessonBody">${md(L.text)}</article>`;
+  if(L.status==="streaming") h+=`<div class="row"><span class="small muted"><span class="spin"></span>Writing…</span><button class="btn sm ghost" id="stop">Stop</button></div>`;
+  if(L.status==="done"){
+    h+=`<div class="row"><button class="btn primary" id="quizMe">Quiz me on this (5)</button>${nextC?`<button class="btn" id="nextL">Next: ${nextC}</button>`:""}<button class="btn ghost sm" id="regen">Rewrite lesson</button></div>
+    <section class="panel"><h2>See it</h2><p class="small muted">Get a diagram of this objective. Leave the box empty to let the tutor pick, or name what you're stuck on.</p>
+      ${L.diagrams.map((d,i)=>`<figure class="diagram"><div class="spread"><h3>${esc(d.title)}</h3><button class="btn sm ghost" data-deld="${i}" aria-label="Remove diagram">Remove</button></div><div class="dg" data-i="${i}"><span class="spin"></span></div><figcaption>${esc(d.caption)}</figcaption></figure>`).join("")}
+      ${L.dErr?`<div class="notice">${esc(L.dErr)}</div>`:""}
+      <div class="inrow"><input id="dfocus" placeholder="e.g. DHCP DORA process, RAID 5 parity" ${L.drawing?"disabled":""}><button class="btn primary" id="draw" ${L.drawing?"disabled":""}>${L.drawing?'<span class="spin"></span>Drawing…':"Draw a diagram"}</button></div></section>
+    <section class="panel vids"><h2>Watch it</h2><p class="small muted">Opens YouTube with a search for this objective.</p>
+      ${videoLinks(e,o).map(v=>`<div class="vrow"><a href="${v.href}" target="_blank" rel="noopener noreferrer"><div><b>${esc(v.name)}</b><br><span>${esc(v.note)}</span></div><span aria-hidden="true">↗</span></a><button class="btn sm ghost" data-copyq="${esc(v.q)}">Copy search</button></div>`).join("")}
+      <p class="small muted">"Copy search" copies the search so you can paste it into the YouTube app's search bar.</p></section>
+    <section class="panel chat"><h2>Ask the tutor</h2><p class="small muted">Stuck on something? Ask for another example, a simpler explanation, or how two terms differ.</p><div id="chatLog">`+
+    L.chat.map(m=>`<div class="msg ${m.role==="user"?"me":"ai md"}">${m.role==="user"?esc(m.content):md(m.content)}</div>`).join("")+
+    `</div><div class="inrow"><textarea id="chatIn" rows="2" placeholder="e.g. What's the difference between a switch and a router?"></textarea><button class="btn primary" id="send">Ask</button></div></section>`;
+  }
+  $app.innerHTML=h;
+  $("#back").onclick=()=>{ L.ctl&&L.ctl.abort(); go("home"); };
+  $("#stop")&&($("#stop").onclick=()=>L.ctl&&L.ctl.abort());
+  $("#retry")&&($("#retry").onclick=generateLesson);
+  $("#regen")&&($("#regen").onclick=generateLesson);
+  $("#quizMe")&&($("#quizMe").onclick=()=>startDrill(Array(5).fill(L.code),"Quiz: "+L.code));
+  $("#nextL")&&($("#nextL").onclick=()=>openLesson(nextC));
+  $("#send")&&($("#send").onclick=sendChat);
+  $("#draw")&&($("#draw").onclick=drawDiagram);
+  $app.querySelectorAll("[data-copyq]").forEach(b=>b.onclick=async()=>{
+    const q=b.dataset.copyq; let ok=false;
+    try{ await navigator.clipboard.writeText(q); ok=true; }catch(e){
+      try{ const ta=document.createElement("textarea"); ta.value=q; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); ok=document.execCommand("copy"); ta.remove(); }catch(e2){}
+    }
+    b.textContent = ok ? "Copied ✓" : q; setTimeout(()=>{ if(ok) b.textContent="Copy search"; },2500);
+  });
+  $app.querySelectorAll("[data-deld]").forEach(b=>b.onclick=()=>{ L.diagrams.splice(+b.dataset.deld,1); saveDiagrams(L.exam,L.code,L.diagrams); renderLesson(); });
+  if(L.status==="done") paintDiagrams();
+}
+function $(s){ return $app.querySelector(s); }
+async function sendChat(){
+  const L=S.lesson, e=EXAMS[L.exam], o=e.idx[L.code], box=$("#chatIn"), q=box.value.trim();
+  if(!q || L.busy || !needSample()) return;
+  L.busy=true; L.chat.push({role:"user",content:q}); L.chat.push({role:"assistant",content:"Thinking…"}); renderLesson();
+  const rules = `You are a patient CompTIA ${e.name} (${e.code}) tutor. The student just read this lesson on objective ${o.code} "${o.title}":\n\n${L.text.slice(0,14000)}\n\nAnswer their questions clearly and accurately, tie answers back to what the exam expects, use short examples, and keep replies under 250 words unless they ask for more. Highlight the most important words with [[k:key concept]], [[n:number, port or command]], [[t:exam trap]] and [[h:memory hook]] markers, sparingly. Reply to the student's next message.`;
+  const turns=[{role:"user",content:rules},{role:"assistant",content:"Understood. I'm ready for the student's question."},...L.chat.slice(0,-1)];
+  const last=L.chat[L.chat.length-1];
+  try{
+    const {text}=await S.sample(turns,{cache:false,modelTier:"default",onText:({text})=>{ last.content=text; const log=document.getElementById("chatLog"); if(log&&log.lastElementChild) log.lastElementChild.innerHTML=md(text); }});
+    last.content=text;
+  }catch(err){ last.content = err.text || errCopy(err); }
+  L.busy=false; if(S.view==="lesson"){ renderLesson(); const t=$("#chatIn"); t&&t.focus(); }
+}
+
+/* ============ Quiz runner (practice + exam modes) ============ */
+function newRun(o){ return Object.assign({mode:"practice",title:"",qs:[],sel:[],checked:[],flags:[],idx:0,plan:[],genBusy:false,genErr:"",ctl:new AbortController(),explain:{}},o); }
+async function startDrill(codes, title){
+  const e=EXAMS[S.exam]; if(!needSample()) return;
+  codes = codes || weakest(e,10);
+  S.run=newRun({exam:e.id,kind:"drill",title:title||"Weak-spot drill",plan:codes});
+  go("quiz"); fillRun();
+}
+function startReview(){
+  const e=EXAMS[S.exam], p=P();
+  const qs=p.missed.slice(-10).reverse().map(q=>Object.assign({},q,{review:true}));
+  S.run=newRun({exam:e.id,kind:"review",title:"Review mistakes",qs,plan:qs.map(q=>q.obj)});
+  go("quiz");
+}
+function startExam(N){
+  const e=EXAMS[S.exam]; if(!needSample()) return;
+  S.run=newRun({exam:e.id,kind:"exam",mode:"exam",title:(N===90?"Full":"Short")+" practice exam",plan:examPlan(e,N),remaining:e.mins*60*N/e.qs,started:false});
+  go("quiz"); fillRun();
+}
+async function fillRun(){
+  const R=S.run, e=EXAMS[R.exam];
+  if(R.genBusy) return; R.genBusy=true; R.genErr="";
+  const batch = R.mode==="exam" ? 10 : 10;
+  while(R===S.run && R.qs.length<R.plan.length){
+    const codes=R.plan.slice(R.qs.length, R.qs.length+batch);
+    try{
+      const qs=await genQuestions(e,codes,R.ctl.signal);
+      if(!qs.length) throw {code:"invalid_json"};
+      R.qs.push(...qs.slice(0,R.plan.length-R.qs.length)); persist(e.id);
+      if(R.mode==="exam" && !R.started){ R.started=true; startTimer(); }
+    }catch(err){ R.genErr=errCopy(err); break; }
+    if(S.view==="quiz" && R===S.run) renderQuiz();
+    if(R.mode!=="exam") break;
+  }
+  R.genBusy=false;
+  if(R.mode!=="exam" && R.qs.length<R.plan.length && !R.genErr && R.qs.length) R.plan=R.plan.slice(0,R.qs.length);
+  if(S.view==="quiz" && R===S.run) renderQuiz();
+}
+function startTimer(){
+  const R=S.run; clearInterval(R.timer);
+  R.timer=setInterval(()=>{
+    if(R!==S.run || S.view!=="quiz"){ clearInterval(R.timer); return; }
+    if(!R.qs[R.idx]) return; // paused while questions are being written
+    R.remaining--; const t=document.getElementById("timer"); if(t) t.textContent=fmt(R.remaining);
+    if(R.remaining<=0){ clearInterval(R.timer); finishExam(true); }
+  },1000);
+}
+function fmt(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+function isRight(q,sel){ return sel && sel.length===q.answer.length && [...sel].sort().every((v,i)=>v===q.answer[i]); }
+
+function renderQuiz(){
+  const R=S.run, e=EXAMS[R.exam], q=R.qs[R.idx], total=R.plan.length;
+  let h=`<div class="${R.mode==="exam"?"sticky":""}"><div class="spread"><button class="back" id="quit">‹ Quit</button>
+    ${R.mode==="exam"?`<span class="timer" id="timer" aria-label="Time remaining">${fmt(R.remaining)}</span>`:""}</div>
+    <div class="spread"><h2>${esc(R.title)}</h2><span class="small muted">${Math.min(R.idx+1,total)} of ${total}</span></div></div>`;
+  if(!q){
+    if(R.genErr) h+=`<div class="notice">${esc(R.genErr)} <button class="btn sm" id="regen">Try again</button></div>`;
+    else h+=`<div class="panel"><span class="spin"></span>Writing ${R.mode==="exam"?"the next set of":"your"} questions. This usually takes 20–60 seconds${R.mode==="exam"?"; the clock is paused":""}.</div>`;
+    $app.innerHTML=h; bindQuizTop(); return;
+  }
+  const sel=R.sel[R.idx]||[], checked=R.checked[R.idx], multi=q.answer.length>1, o=e.idx[q.obj];
+  h+=`<div class="panel"><div class="qhead"><span class="tag">${o?o.code+" "+esc(o.domain.name):""}</span>${R.mode==="exam"?`<button class="btn sm ghost" id="flag" aria-pressed="${!!R.flags[R.idx]}">${R.flags[R.idx]?"Flagged":"Flag for review"}</button>`:""}</div>
+    <div class="qtext">${esc(q.q)}</div>${multi&&!/choose/i.test(q.q)?`<p class="small muted">Select ${q.answer.length}.</p>`:""}`;
+  q.choices.forEach((c,i)=>{
+    let cls="";
+    if(checked){ if(q.answer.includes(i)) cls="right"; else if(sel.includes(i)) cls="wrong"; }
+    h+=`<button class="choice ${cls}" data-c="${i}" aria-pressed="${sel.includes(i)}" ${checked?"disabled":""}><span class="k">${"ABCDEF"[i]}</span><span>${esc(c)}</span></button>`;
+  });
+  if(checked){
+    const ok=isRight(q,sel);
+    h+=`<div class="fb ${ok?"":"no"}"><b>${ok?"Correct.":"Not quite. Answer: "+q.answer.map(i=>"ABCDEF"[i]).join(", ")}</b><p>${esc(q.explain)}</p>${q.traps?`<p class="small"><b>Trap:</b> ${esc(q.traps)}</p>`:""}${o?`<p class="small"><a href="${videoLinks(e,o)[0].href}" target="_blank" rel="noopener noreferrer">Watch a video on ${o.code} ↗</a></p>`:""}</div>
+      <div id="why" class="md">${R.explain[R.idx]?md(R.explain[R.idx]):""}</div>`;
+  }
+  h+=`</div><div class="row">`;
+  if(R.mode==="practice"){
+    if(!checked) h+=`<button class="btn primary" id="check" ${sel.length?"":"disabled"}>Check answer</button>`;
+    else { h+=`<button class="btn primary" id="next">${R.idx+1<total?"Next question":"See results"}</button><button class="btn ghost" id="askwhy">Ask why</button>`; }
+  } else {
+    h+=`<button class="btn" id="prev" ${R.idx?"":"disabled"}>Previous</button><button class="btn primary" id="next">${R.idx+1<total?"Next":"Review and submit"}</button>`;
+  }
+  h+=`</div>`;
+  if(R.mode==="exam"){
+    h+=`<section class="panel"><div class="spread"><h3>Questions</h3><button class="btn sm" id="submit">Submit exam</button></div><div class="navgrid">`+
+      R.plan.map((_,i)=>`<button data-go="${i}" class="${R.sel[i]&&R.sel[i].length?"ans":""} ${i===R.idx?"cur":""} ${R.flags[i]?"flg":""} ${R.qs[i]?"":"pend"}" ${R.qs[i]?"":"disabled"} aria-label="Question ${i+1}">${i+1}</button>`).join("")+
+      `</div>${R.genErr?`<div class="notice">${esc(R.genErr)} <button class="btn sm" id="regen">Keep generating</button></div>`:(R.qs.length<total?`<p class="small muted"><span class="spin"></span>${R.qs.length} of ${total} questions ready; the rest are being written while you work.</p>`:"")}</section>`;
+  }
+  $app.innerHTML=h; bindQuizTop();
+  $app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.c; let s=[...(R.sel[R.idx]||[])];
+    if(multi){ s.includes(i)? s=s.filter(x=>x!==i) : (s.length<q.answer.length ? s.push(i) : (s.shift(), s.push(i))); }
+    else s=[i];
+    R.sel[R.idx]=s; renderQuiz();
+  });
+  $("#check")&&($("#check").onclick=()=>{
+    R.checked[R.idx]=true; const ok=isRight(q,R.sel[R.idx]);
+    recordAnswer(R.exam,q.obj,ok);
+    const p=P(R.exam);
+    if(!ok && !q.review) p.missed.push(stripQ(q));
+    if(ok && q.review) p.missed=p.missed.filter(m=>m.q!==q.q);
+    p.missed=p.missed.slice(-60); persist(R.exam); renderQuiz();
+  });
+  $("#askwhy")&&($("#askwhy").onclick=()=>askWhy());
+  $("#next")&&($("#next").onclick=()=>{
+    if(R.idx+1<total){ R.idx++; renderQuiz(); window.scrollTo(0,0); if(R.mode==="exam" && !R.qs[R.idx] && !R.genBusy) fillRun(); }
+    else if(R.mode==="exam") confirmSubmit(); else finishPractice();
+  });
+  $("#prev")&&($("#prev").onclick=()=>{ R.idx--; renderQuiz(); });
+  $("#flag")&&($("#flag").onclick=()=>{ R.flags[R.idx]=!R.flags[R.idx]; renderQuiz(); });
+  $("#submit")&&($("#submit").onclick=confirmSubmit);
+  $app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ R.idx=+b.dataset.go; renderQuiz(); });
+}
+function bindQuizTop(){
+  const R=S.run;
+  $("#quit").onclick=()=>{ if(R.mode==="exam" && !confirm("Quit this practice exam? Your answers won't be scored.")) return; R.ctl.abort(); clearInterval(R.timer); S.run=null; go("home"); };
+  $("#regen")&&($("#regen").onclick=()=>{ R.ctl=new AbortController(); fillRun(); renderQuiz(); });
+}
+function stripQ(q){ return {obj:q.obj,q:q.q,choices:q.choices,answer:q.answer,explain:q.explain,traps:q.traps}; }
+async function askWhy(){
+  const R=S.run, q=R.qs[R.idx], e=EXAMS[R.exam]; if(!needSample()) return;
+  const sel=R.sel[R.idx]||[];
+  R.explain[R.idx]="Thinking…"; renderQuiz();
+  const prompt=`A student studying for CompTIA ${e.name} (${e.code}) answered this practice question.
+Question: ${q.q}
+Choices:\n${q.choices.map((c,i)=>"ABCDEF"[i]+". "+c).join("\n")}
+Keyed correct answer: ${q.answer.map(i=>"ABCDEF"[i]).join(", ")}
+Student chose: ${sel.map(i=>"ABCDEF"[i]).join(", ")}
+
+First, check the key: if the keyed answer is actually wrong or debatable for the current exam objectives, say so plainly and give the correct answer. Then explain the concept behind the question in simple terms, go through why each choice is right or wrong, and end with one tip for recognizing this type of question on the real exam. Under 250 words, Markdown. Highlight sparingly with [[k:key concept]], [[n:number, port or command]], [[t:exam trap]] and [[h:memory hook]] markers.`;
+  try{
+    const {text}=await S.sample(prompt,{modelTier:"default",onText:({text})=>{ R.explain[R.idx]=text; const w=document.getElementById("why"); if(w) w.innerHTML=md(text); }});
+    R.explain[R.idx]=text;
+  }catch(err){ R.explain[R.idx]=err.text||errCopy(err); }
+  if(S.view==="quiz") renderQuiz();
+}
+function finishPractice(){
+  const R=S.run, e=EXAMS[R.exam];
+  const n=R.qs.length, c=R.qs.filter((q,i)=>isRight(q,R.sel[i])).length;
+  S.results={kind:"practice",exam:e.id,title:R.title,n,c,qs:R.qs,sel:R.sel};
+  S.run=null; go("results");
+}
+function confirmSubmit(){
+  const R=S.run, un=R.plan.length-R.sel.filter(s=>s&&s.length).length;
+  if(confirm(un?`${un} question${un===1?" is":"s are"} unanswered. Submit anyway?`:"Submit your exam for scoring?")) finishExam(false);
+}
+function finishExam(timeUp){
+  const R=S.run, e=EXAMS[R.exam], p=P(R.exam);
+  clearInterval(R.timer); R.ctl.abort();
+  const qs=R.qs; let c=0; const byD={};
+  qs.forEach((q,i)=>{
+    const ok=isRight(q,R.sel[i]); if(ok)c++;
+    const d=e.idx[q.obj].domain.n; byD[d]=byD[d]||{c:0,n:0}; byD[d].n++; if(ok)byD[d].c++;
+    recordAnswer(R.exam,q.obj,ok); if(!ok) p.missed.push(stripQ(q));
+  });
+  const n=R.plan.length; // unwritten questions count as unanswered
+  const score=Math.round(100+800*c/n);
+  p.missed=p.missed.slice(-60);
+  p.exams.push({date:Date.now(),n,c,score,byD}); p.exams=p.exams.slice(-30); persist(R.exam);
+  S.results={kind:"exam",exam:e.id,title:R.title,n,c,score,byD,qs,sel:R.sel,timeUp};
+  S.run=null; go("results");
+}
+function renderResults(){
+  const X=S.results, e=EXAMS[X.exam];
+  let h=`<button class="back" id="home">‹ ${esc(e.name)} home</button><h1>${esc(X.title)} results</h1>`;
+  if(X.kind==="exam"){
+    const pass=X.score>=e.pass;
+    h+=`<section class="panel">${X.timeUp?`<p class="small muted">Time ran out; unanswered questions count as wrong.</p>`:""}
+      <div class="big" style="color:${pass?"var(--ok)":"var(--bad)"}">${X.score}</div><p>${pass?"Above":"Below"} the ${e.pass} pass mark · ${X.c} of ${X.n} correct</p>
+      <p class="small muted">This is an estimate: CompTIA scales scores and weights questions differently, so treat it as a trend line rather than a prediction.</p></section>
+      <section class="panel"><h2>By domain</h2>`+e.domains.map(d=>{const v=X.byD[d.n]||{c:0,n:0};const pct=v.n?v.c/v.n:0;return `<div class="dom"><div class="spread"><h3>${d.n}.0 ${esc(d.name)}</h3><span class="small">${v.c}/${v.n}</span></div><div class="bar"><i style="width:${pct*100}%"></i></div></div>`;}).join("")+`</section>`;
+  } else {
+    h+=`<section class="panel"><div class="big">${X.c}/${X.n}</div><p class="muted">Your mastery scores and review schedule have been updated.</p><div class="row"><button class="btn primary" id="again">Another drill</button></div></section>`;
+  }
+  h+=`<section class="panel"><h2>Review answers</h2>`;
+  X.qs.forEach((q,i)=>{
+    const s=X.sel[i]||[], ok=isRight(q,s);
+    h+=`<details class="dom"><summary><div class="spread"><span>${i+1}. ${esc(q.q.slice(0,80))}${q.q.length>80?"…":""}</span><b style="color:${ok?"var(--ok)":"var(--bad)"}">${ok?"✓":"✗"}</b></div></summary>
+      <p class="qtext">${esc(q.q)}</p>${q.choices.map((c,j)=>`<div class="choice ${q.answer.includes(j)?"right":(s.includes(j)?"wrong":"")}"><span class="k">${"ABCDEF"[j]}</span><span>${esc(c)}</span></div>`).join("")}
+      <div class="fb ${ok?"":"no"}"><p>${esc(q.explain)}</p>${q.traps?`<p class="small"><b>Trap:</b> ${esc(q.traps)}</p>`:""}</div></details>`;
+  });
+  h+=`</section>`;
+  $app.innerHTML=h;
+  $("#home").onclick=()=>go("home");
+  $("#again")&&($("#again").onclick=()=>startDrill());
+}
+
+/* ============ Direct Claude API (key stays on this device) ============ */
+const MODELS=[["claude-sonnet-5","Claude Sonnet 5","Best teaching quality (recommended)"],["claude-haiku-4-5-20251001","Claude Haiku 4.5","Faster and cheaper, a bit less thorough"]];
+function apiKey(){ return (localGet("ct_apikey")||"").trim(); }
+function modelId(){ return localGet("ct_model")||MODELS[0][0]; }
+function apiErr(code){ const e=new Error(code); e.code=code; return e; }
+async function callClaude(input, opts={}){
+  const key=apiKey(); if(!key) throw apiErr("no_key");
+  const messages = typeof input==="string" ? [{role:"user",content:input}] : input.map(t=>({role:t.role,content:t.content}));
+  const body={model: opts.modelTier==="quick" ? MODELS[1][0] : modelId(), max_tokens: opts.maxTokens||8000, messages, stream:true};
+  let res;
+  try{ res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:opts.signal,headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(body)}); }
+  catch(e){ throw apiErr(e.name==="AbortError"?"cancelled":"network"); }
+  if(!res.ok){
+    let msg=""; try{ const j=await res.json(); msg=(j.error&&j.error.message)||""; }catch(e){}
+    const st=res.status;
+    const c = st===401||st===403 ? "bad_key" : st===429 ? "rate_limited" : (st===529||st===503) ? "overloaded" : /credit/i.test(msg) ? "no_credit" : (st===404||/model/i.test(msg)) ? "bad_model" : "http_"+st;
+    const er=apiErr(c); er.detail=msg; throw er;
+  }
+  const reader=res.body.getReader(), dec=new TextDecoder(); let buf="", text="";
+  try{
+    for(;;){
+      const {done,value}=await reader.read(); if(done) break;
+      buf+=dec.decode(value,{stream:true}); let i;
+      while((i=buf.indexOf("\n"))>=0){
+        const line=buf.slice(0,i).trim(); buf=buf.slice(i+1);
+        if(!line.startsWith("data:")) continue;
+        let ev; try{ ev=JSON.parse(line.slice(5)); }catch(e){ continue; }
+        if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ text+=ev.delta.text; if(opts.onText) opts.onText({text,delta:ev.delta.text}); }
+        else if(ev.type==="error") throw apiErr(ev.error&&ev.error.type==="overloaded_error"?"overloaded":"stream_error");
+      }
+    }
+  }catch(e){ const er = e.code ? e : apiErr(e.name==="AbortError"?"cancelled":"network"); er.text=text; throw er; }
+  return {text};
+}
+function parseJSONLoose(t){
+  const s=String(t).trim().replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,"");
+  try{ return JSON.parse(s); }catch(e){}
+  const a=s.indexOf("["), o=s.indexOf("{"), st=(a>=0&&(o<0||a<o))?a:o, en=Math.max(s.lastIndexOf("]"),s.lastIndexOf("}"));
+  if(st<0||en<st) throw apiErr("invalid_json");
+  try{ return JSON.parse(s.slice(st,en+1)); }catch(e){ throw apiErr("invalid_json"); }
+}
+const sampleShim = Object.assign((input,opts)=>callClaude(input,opts||{}), {
+  json: async (input,opts={})=>{
+    const p = typeof input==="string" ? input+"\n\nRespond with only the JSON: no code fences, no commentary." : input;
+    const {text}=await callClaude(p,{...opts,onText:undefined});
+    return parseJSONLoose(text);
+  }
+});
+
+/* ============ Cross-device sync (private GitHub Gist) ============ */
+const Sync={state:"",last:0,libDirty:false,pending:false,t:null,busy:false};
+function ghTok(){ return (localGet("ct_ghtoken")||"").trim(); }
+async function gh(path,opt={}){
+  const r=await fetch("https://api.github.com"+path,{...opt,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+ghTok(),"X-GitHub-Api-Version":"2022-11-28",...(opt.body?{"Content-Type":"application/json"}:{})}});
+  if(!r.ok){ const e=new Error("gh_"+r.status); e.status=r.status; throw e; }
+  return r.status===204?null:r.json();
+}
+function snapProgress(){ const prog={}; ORDER.forEach(id=>prog[id]=P(id)); return {app:"cyberop",v:1,at:Date.now(),goal:goalMin(),prog,game:G()}; }
+function snapLibrary(){ const lib={}; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^ct_(lesson|diag)_/.test(k)) lib[k]=localStorage.getItem(k); } }catch(e){} return lib; }
+async function gistId(){
+  let id=localGet("ct_gist"); if(id) return id;
+  for(let pg=1; pg<=5 && !id; pg++){
+    const list=await gh(`/gists?per_page=100&page=${pg}`);
+    const f=list.find(g=>g.description==="CyberOP sync"); if(f) id=f.id;
+    if(list.length<100) break;
+  }
+  if(!id){ const g=await gh("/gists",{method:"POST",body:JSON.stringify({description:"CyberOP sync",public:false,files:{"progress.json":{content:JSON.stringify(snapProgress())},"library.json":{content:JSON.stringify(snapLibrary())}}})}); id=g.id; }
+  localSet("ct_gist",id); return id;
+}
+async function fileText(f){ if(!f) return null; if(f.truncated){ const r=await fetch(f.raw_url); return r.ok?r.text():null; } return f.content; }
+function syncPaint(){ if(S.view==="settings") renderSettings(); else if(S.view==="home") render(); }
+async function syncPull(){
+  if(!ghTok() || Sync.busy) return; Sync.busy=true; Sync.state="Syncing…"; syncPaint();
+  try{
+    const id=await gistId(), g=await gh("/gists/"+id);
+    const pr=await fileText(g.files["progress.json"]), lib=await fileText(g.files["library.json"]);
+    if(pr){ const r=JSON.parse(pr);
+      for(const eid of ORDER){ const rp=r.prog&&r.prog[eid]; if(rp && (rp.updated||0)>(P(eid).updated||0)){ S.prog[eid]=rp; localSet("ct_prog_"+eid,JSON.stringify(rp)); } }
+      if(r.game && (r.game.updated||0)>(G().updated||0)){ S.game=r.game; localSet("ct_game",JSON.stringify(r.game)); }
+      if(r.goal && !localGet("ct_goal")) localSet("ct_goal",String(r.goal));
+    }
+    const local=snapLibrary();
+    if(lib){ const rl=JSON.parse(lib); for(const [k,v] of Object.entries(rl)) if(/^ct_(lesson|diag)_/.test(k) && !local[k]) localSet(k,v); S.lessons={}; if(Object.keys(local).some(k=>!(k in rl))) Sync.libDirty=true; }
+    else Sync.libDirty=true;
+    Sync.busy=false; await syncPush(true);
+    Sync.last=Date.now(); Sync.state="Synced "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  }catch(e){ Sync.state = e.status===401 ? "GitHub token rejected. Check it below." : "Sync failed. It'll retry next time you open the app."; }
+  Sync.busy=false; syncPaint();
+}
+function schedulePush(){ if(!ghTok()) return; Sync.pending=true; clearTimeout(Sync.t); Sync.t=setTimeout(()=>syncPush(false),5000); }
+async function syncPush(all, leaving){
+  if(!ghTok() || Sync.busy) return; const id=localGet("ct_gist"); if(!id) return;
+  const files={"progress.json":{content:JSON.stringify(snapProgress())}};
+  if(all || Sync.libDirty) files["library.json"]={content:JSON.stringify(snapLibrary())};
+  const body=JSON.stringify({files});
+  try{
+    await gh("/gists/"+id,{method:"PATCH",body,keepalive: leaving && body.length<60000});
+    if(files["library.json"]) Sync.libDirty=false; Sync.pending=false; Sync.last=Date.now();
+    Sync.state="Synced "+new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  }catch(e){ Sync.state = e.status===401 ? "GitHub token rejected. Check it below." : "Couldn't sync; will retry."; }
+}
+
+/* ============ Settings: API key, model, sync ============ */
+S.set={msg:"",testing:false,smsg:""};
+function settingsExtraHTML(){
+  const k=apiKey(), T=S.set, t=ghTok();
+  return `<section class="panel"><h2>Claude API key</h2>
+    <p class="small">${k?`Saved key ending in <b>…${esc(k.slice(-4))}</b>. Stored only on this device, never synced.`:"No key yet. Lessons, questions and diagrams need one."}</p>
+    <ol class="small muted"><li>Go to console.anthropic.com and sign in.</li><li>Add credits under Billing and set a monthly spend limit so costs can't surprise you.</li><li>Create a key under API Keys, copy it, and paste it here. Do this on each device.</li></ol>
+    <div class="inrow"><input id="keyIn" type="password" autocomplete="off" placeholder="sk-ant-..." aria-label="API key"><button class="btn primary" id="keySave">Save</button></div>
+    <div class="row" style="margin-top:8px"><button class="btn" id="keyTest" ${k&&!T.testing?"":"disabled"}>${T.testing?'<span class="spin"></span>Testing…':"Test connection"}</button>${k?`<button class="btn ghost" id="keyDel">Remove key</button>`:""}</div>
+    ${T.msg?`<p class="small">${esc(T.msg)}</p>`:""}</section>
+  <section class="panel"><h2>Model</h2>${MODELS.map(([id,name,note])=>`<label class="obj" style="cursor:pointer"><input type="radio" name="model" value="${id}" ${modelId()===id?"checked":""}><span class="t"><b>${name}</b><br><span class="small muted">${note}</span></span></label>`).join("")}
+    <p class="small muted">You pay Anthropic per request (each lesson, question batch or diagram is one). Check current pricing in the console.</p></section>
+  <section class="panel"><h2>Sync phone and desktop</h2>
+    <p class="small">${t?`Connected. ${esc(Sync.state||"")}`:"Keeps progress, XP, trophies, lessons and diagrams in sync using a secret Gist in your own GitHub account."}</p>
+    ${t?"":`<ol class="small muted"><li>On github.com: Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token (classic).</li><li>Tick only the <b>gist</b> box, pick an expiration, and generate.</li><li>Paste the token here, then do the same on your other device.</li></ol>`}
+    <div class="inrow"><input id="ghIn" type="password" autocomplete="off" placeholder="${t?"Replace token":"ghp_..."}" aria-label="GitHub token"><button class="btn primary" id="ghSave">Save</button></div>
+    ${t?`<div class="row" style="margin-top:8px"><button class="btn" id="ghNow" ${Sync.busy?"disabled":""}>Sync now</button><button class="btn ghost" id="ghDel">Disconnect</button></div>`:""}
+    ${T.smsg?`<p class="small">${esc(T.smsg)}</p>`:""}</section>`;
+}
+function bindSettingsExtra(){
+  const T=S.set;
+  $("#keySave").onclick=()=>{ const v=$("#keyIn").value.trim(); if(!v) return; localSet("ct_apikey",v); T.msg="Key saved. Tap Test connection to check it."; renderSettings(); };
+  $("#keyDel")&&($("#keyDel").onclick=()=>{ if(!confirm("Remove the saved API key from this device?")) return; try{ localStorage.removeItem("ct_apikey"); }catch(e){} T.msg="Key removed."; renderSettings(); });
+  $("#keyTest")&&($("#keyTest").onclick=async()=>{ T.testing=true; T.msg=""; renderSettings();
+    try{ await callClaude("Reply with the single word OK.",{maxTokens:10}); T.msg="Connected. You're ready to study."; }catch(e){ T.msg=errCopy(e)+(e.detail?" ("+e.detail+")":""); }
+    T.testing=false; renderSettings(); });
+  $app.querySelectorAll('input[name="model"]').forEach(r=>r.onchange=()=>localSet("ct_model",r.value));
+  $("#ghSave").onclick=()=>{ const v=$("#ghIn").value.trim(); if(!v) return; localSet("ct_ghtoken",v); T.smsg="Token saved. Syncing…"; renderSettings(); syncPull().then(()=>{ T.smsg=""; syncPaint(); }); };
+  $("#ghNow")&&($("#ghNow").onclick=()=>syncPull());
+  $("#ghDel")&&($("#ghDel").onclick=()=>{ if(!confirm("Stop syncing on this device? Your data stays on this device and in your Gist.")) return; try{ localStorage.removeItem("ct_ghtoken"); localStorage.removeItem("ct_gist"); }catch(e){} Sync.state=""; renderSettings(); });
+}
+
+/* ============ Keyboard (desktop) ============ */
+document.addEventListener("keydown", ev=>{
+  if(S.view!=="quiz" || !S.run) return;
+  const tg=ev.target; if(tg && (tg.tagName==="INPUT"||tg.tagName==="TEXTAREA"||tg.isContentEditable)) return;
+  const k=ev.key.toLowerCase();
+  let idx=-1; if(/^[1-6]$/.test(k)) idx=+k-1; else if(/^[a-f]$/.test(k)) idx="abcdef".indexOf(k);
+  if(idx>=0){ const b=$app.querySelector(`[data-c="${idx}"]`); if(b && !b.disabled){ b.click(); ev.preventDefault(); } return; }
+  if(k==="enter"){ const b=$("#check")||$("#next"); if(b && !b.disabled){ b.click(); ev.preventDefault(); } return; }
+  if(S.run.mode==="exam"){ if(k==="arrowright"){ const b=$("#next"); b&&b.click(); } if(k==="arrowleft"){ const b=$("#prev"); b&&!b.disabled&&b.click(); } }
+});
+
+/* ============ Boot ============ */
+(function(){ document.documentElement.dataset.theme = localGet("ct_theme") || "dark"; })();
+render();
+S.sample=sampleShim; S.sampleChecked=true;
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+syncPull();
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ if(Date.now()-(Sync.last||0)>60000) syncPull(); } else if(Sync.pending) syncPush(false,true); });
+</script>
+</body>
+</html>
